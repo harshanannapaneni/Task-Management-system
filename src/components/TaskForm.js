@@ -3,61 +3,71 @@ import axios from "axios";
 import "../css/taskform.css"
 
 const TaskForm = ({fetchTasks, editingTask, setEditingTask, setShowForm}) => {
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [priority, setPriority] = useState('Low');
-    const [dueDate, setDueDate] = useState('');
+    const [task, setTask]=useState({
+        title: "",
+        description: "",
+        priority: "",
+        dueDate: ""
+    });
 
     useEffect(() => {
         if(editingTask){
-            setTitle(editingTask.Title);
-            setDescription(editingTask.description);
-            setPriority(editingTask.priority);
-            setDueDate(editingTask.dueDate);
+            setTask(editingTask)
         }
     },[editingTask]);
+
+    const handleChange = (e) => {
+        const {name, value} = e.target;
+        setTask((prevTask) => ({
+            ...prevTask,
+            [name]:value,
+        }));
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try{
-            const payload = {title, description, priority, dueDate};
             if(editingTask){
-                await axios.put(`/tasks/${editingTask.id}`, payload);
+                await axios.put(`/tasks/${editingTask.id}`, task);
             }
             else{
-                axios.post('/tasks',payload);
+                axios.post('/tasks',task);
             }
             fetchTasks();
             setEditingTask(null);
             setShowForm(false);
         }
         catch(err){
-            console.error(err)
+            console.error(err);
         }
     };
     return (
-        <form className="task-form" onSubmit={{handleSubmit}}>
+        <form className="task-form" onSubmit={handleSubmit}>
             <h3>{editingTask ? "Edit Task" : "Add Task"}</h3>
             <input type="text"
+                    name="title"
                     className="task-input"
-                    value={title}
+                    value={task.title}
                     placeholder="Task Title"
-                    onChange={(e)=>setTitle(e.target.value)} />
+                    onChange={handleChange} />
             <textarea className="task-textarea"
+                        name="description"
                         placeholder="Description"
-                        value={description}
-                        onChange={(e)=>setDescription(e.target.value)} />
+                        value={task.description}
+                        onChange={handleChange} />
             <select className="task-select"
-                    value={priority}
-                    onChange={(e) => setPriority(e.target.value)}>
+                    value={task.priority}
+                    name="priority"
+                    onChange={handleChange}>
                 <option>Low</option>
                 <option>Medium</option>
                 <option>High</option>
             </select>
             <input type="date"
+                    name="dueDate"
                     className="task-input"
-                    value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
+                    value={task.dueDate}
+                    onChange={handleChange}
          />
          <button type="submit" className="task-submit-btn">
             {editingTask ? "Update Task" : "Add Task"}

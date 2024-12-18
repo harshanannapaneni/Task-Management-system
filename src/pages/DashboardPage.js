@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import "../css/dashboard.css";
 import TaskForm from "../components/TaskForm";
+import { deleteTask, getTasks } from "../services/api";
 
 const DashboardPage = () => {
     const [tasks, setTasks] = useState([]);
@@ -14,22 +14,27 @@ const DashboardPage = () => {
 
     const fetchTasks = async () => {
         try{
-            const response = await axios.get('/tasks');
+            const response = await getTasks();
             setTasks(response.data);
         }
         catch(err){
-            console.error(err);
+            console.error("Error fetching the tasks ",err);
         }
     };
 
     const handleDelete = async (id) => {
         try{
-            await axios.delete('/tasks/${id}');
+            await deleteTask(id);
             fetchTasks();
         }
         catch(err){
-            console.error(err);
+            console.error("Error deleting the task ",err);
         }
+    }
+
+    const handleEdit = (task) => {
+        setEditingTask(task);
+        setShowForm(true);
     }
 
     return (
@@ -49,16 +54,16 @@ const DashboardPage = () => {
         )}
 
         <div className="task-list">
-        {tasks.map((task) => (
+            {tasks.length === 0 ? (
+                <p>No tasks found. Add a task to get started!</p>
+            ):(
+        tasks.map((task) => (
           <div className="task-item" key={task.id}>
             <span className="task-title">{task.title}</span>
             <div className="task-actions">
               <button
                 className="btn btn-secondary"
-                onClick={() => {
-                    setEditingTask(task);
-                    setShowForm(true);
-                }}
+                onClick={() => handleEdit(task)}
                 >
                     Edit
                 </button>
@@ -67,7 +72,7 @@ const DashboardPage = () => {
                 </button>
                 </div>
             </div>
-        ))}
+        )))}
         </div>
     </div>
     );
