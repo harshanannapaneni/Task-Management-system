@@ -62,6 +62,17 @@ const DashboardPage = () => {
               <span className="task-title">{task.title}</span>
               <div className="task-actions">
                 <button
+                  className="btn"
+                  onClick={() =>
+                    alert(`- Title: ${task.title} 
+- Description: ${task.description}
+- Priority: ${task.priority}
+- Due date: ${task.dueDate}`)
+                  }
+                >
+                  View
+                </button>
+                <button
                   className="btn btn-secondary"
                   onClick={() => handleEdit(task)}
                 >
